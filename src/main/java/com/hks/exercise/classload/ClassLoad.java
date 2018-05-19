@@ -4,7 +4,7 @@ package com.hks.exercise.classload;
  * 类加载器
  *  委托机制：
  *      一个类加载和初始化,会先委托给父类加载器，如：
- *          A.class 先委托给Extension,在委托给Bootstrap,
+ *          ThreadTest.class 先委托给Extension,在委托给Bootstrap,
  *          Bootstrap找不到类,会回到Extension去加载,
  *          找不到在回到System加载，在找不到就报ClassNotFoundException
  *  可见性：
