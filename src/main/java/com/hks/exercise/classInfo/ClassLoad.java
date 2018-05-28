@@ -1,4 +1,4 @@
-package com.hks.exercise.classload;
+package com.hks.exercise.classInfo;
 
 /**
  * 类加载器
@@ -70,12 +70,12 @@ public class ClassLoad {
              * 得到的class是还没有链接的
              * 类的变量赋值和静态代码块都没进行
              */
-            loader.loadClass("com.hks.exercise.classload.ClassLoad");
+            loader.loadClass("com.hks.exercise.classInfo.ClassLoad");
 
             /**
              * 得到的class是已经初始化完成的,已经执行的类的静态块
              */
-            Class.forName("com.hks.exercise.classload.ClassLoad");
+            Class.forName("com.hks.exercise.classInfo.ClassLoad");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
