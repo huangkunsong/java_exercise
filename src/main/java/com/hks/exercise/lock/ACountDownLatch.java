@@ -1,4 +1,4 @@
-package com.hks.exercise.concurrent;
+package com.hks.exercise.lock;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -40,5 +40,6 @@ public class ACountDownLatch {
         count.await();
 
         System.out.println("主线程执行");
+
     }
 }

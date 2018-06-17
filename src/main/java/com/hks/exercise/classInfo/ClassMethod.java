@@ -31,6 +31,10 @@ public class ClassMethod {
         System.out.println(clazz.isInstance("123"));
 
         /**
+         * 类是否基本类型
+         */
+        clazz.isPrimitive();
+        /**
          * 返回指定类型参数的构造函数(不包含private的)
          */
         Constructor<String> constructor = clazz.getConstructor(clazz);
@@ -52,9 +56,20 @@ public class ClassMethod {
         System.out.println(clazz.getDeclaredConstructors());
 
         /**
-         * 获取类的注解
+         * 获取类的注解,包括继承的
          */
         System.out.println(clazz.getAnnotations());
+
+        /**
+         * 获取类的注解,不包括继承的
+         */
+        clazz.getDeclaredAnnotations();
+
+        /**
+         * 对于类，为自己声明实现的所有接口，
+         * 对于接口，为直接扩展的接口，不包括通过父类间接继承来的
+         */
+        clazz.getInterfaces();
 
         /**
          * 获取所有字段,不包含private
@@ -62,7 +77,7 @@ public class ClassMethod {
         clazz.getFields();
 
         /**
-         * 获取所有字段,包含private
+         * 获取所有字段,包含private,不包含继承的
          */
         clazz.getDeclaredFields();
 
@@ -151,9 +166,14 @@ public class ClassMethod {
         method.getExceptionTypes();
 
         /**
-         * 返回方法的所有Annotataion
+         * 返回方法的所有Annotataion,不包括继承的
          */
         method.getDeclaredAnnotations();
+
+        /**
+         * 返回方法的所有Annotataion,包括继承的
+         */
+        method.getAnnotations();
 
         /**
          * 返回方法参数的所有Annotation

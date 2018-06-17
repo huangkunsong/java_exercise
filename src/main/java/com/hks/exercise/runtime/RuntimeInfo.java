@@ -1,4 +1,4 @@
-package com.hks.exercise;
+package com.hks.exercise.runtime;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;

@@ -94,6 +94,7 @@ public class ThreadInfo {
 
         /**
          * 交出当前CPU执行权,让同一优先级的线程执行
+         * 线程回到就绪状态,不存在中断异常
          */
         Thread.yield();
         /**
