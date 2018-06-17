@@ -89,6 +89,8 @@ JVM启动参数：
     -Xmn：设置年轻代大小
     -XX:NewRatio  新生代与老年代的比例，如 –XX:NewRatio=2，则新生代占整个堆空间的1/3，老年代占2/3
     -XX:MaxTenuringThreshold  设置新生代经过N次回收后转为老年代,默认15
+    -java.util.concurrent.ForkJoinPool.common.parallelism=5   可用核心数量的预置并行机制
+
 默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制；
 空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。
 因此服务器一般设置-Xms、-Xmx 相等以避免在每次GC 后调整堆的大小。
