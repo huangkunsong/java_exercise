@@ -1,4 +1,4 @@
-package com.hks.exercise.executor;
+package com.hks.exercise.Thread;
 
 import java.util.concurrent.*;
 
@@ -20,7 +20,7 @@ import java.util.concurrent.*;
  *      一个对象只可以调用一次,多次调用抛出：java.lang.IllegalThreadStateException
  *      不使用start()方法启动线程,直接使用run方法为当前线程执行方法。
  */
-public class ThreadInfo {
+public class ThreadMethod {
 
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         /**
