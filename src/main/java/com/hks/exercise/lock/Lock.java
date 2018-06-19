@@ -79,9 +79,9 @@ public class Lock {
         lock.hasQueuedThreads();
 
         /**
-         * 测试获取锁,获取到返回true
+         * 获取锁等待1S,获取到返回true
          */
-        if (lock.tryLock(1, TimeUnit.MILLISECONDS)) {
+        if (lock.tryLock(1000, TimeUnit.MILLISECONDS)) {
         }
 
         /**
@@ -114,7 +114,7 @@ public class Lock {
         /**
          * 乐观的读锁通过调用tryOptimisticRead()获取，
          * 它总是返回一个标记而不阻塞当前线程，乐观锁不阻止其他线程同时获取写锁。
-         * 此时，乐观的读锁就不再有效了。甚至当写锁释放时，乐观的读锁还处于无效状态。
+         * 写锁被执行时，乐观的读锁就不再有效了。甚至当写锁释放时，乐观的读锁还处于无效状态。
          * 如果已经有写锁被拿到，返回的标记等于0。
          * 你需要总是通过lock.validate(stamp)检查标记是否有效。
          *
