@@ -1,0 +1,41 @@
+Spring Mvc Annotation
+    所有通过基本类型参数获取参数,
+    只要参数名和传参的参数名一致就可以忽略设置参数名
+-----------------------------------------------------
+获取,设置：Cookie,Session
+    获取：
+        1. 方法参数含有HttpServletRequest,HttpServletResponse,
+            request.getCookies();
+            request.getSession();
+        2. 通过工具类RequestContextHolder获取HttpServletRequest
+             HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.
+                 getRequestAttributes()).getRequest();
+        3. @CookieValue
+
+        4.接口参数：HttpSession
+    添加:
+        session：
+            1：request.getSession().setAttribute()
+        cookie：
+            Cookie cookie = new Cookie("aa","bb");
+            cookie.setMaxAge(-1);
+            cookie.setHttpOnly(false);
+            response.addCookie(cookie);
+
+-----------------------------------------------------------------------
+GET
+    URL:http://localhost:2000/producer/aa?userName=123123
+    1. 直接使用同名变量接收：String userName
+    2. 直接使用VO中同名字段接收：UserVO
+    3. @RequestParam
+-----------------------------------------------------------------------
+POST
+    QueryString：
+        直接使用同名变量接收：String userName
+        可以直接拿vo接收
+    form表单提交：
+        @RequestBody vo，map
+---------------------------------------------------------------------
+路径参数：
+    @PathVariable
+    

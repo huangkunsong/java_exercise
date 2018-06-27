@@ -1,4 +1,4 @@
-##Spring装配bean的过程：  
+Spring装配bean的过程：
     1. 使用默认构造器方法或指定构造参数进行Bean实例化；  
     2. 根据property标签的配置调用Bean实例中的相关set方法完成属性的赋值。 
     3. 如果Bean实现了BeanNameAware接口，调用setBeanName设置Bean的ID或者Name； 
@@ -7,8 +7,9 @@
     6. 如果有BeanPostProcessor与当前bean关联，则与之关联的对象的postProcessor-BeforeInitialzation()方法将被调用； 
     7. 调用InitializingBean的afterPropertiesSet()方法； 
     8. 调用定制init-method方法； 
-    9. 调用BeanPostProcessor的后初始化方法； 
-##Spring接口，所有接口实现类都必须是注册成bean才生效.@Configuration 
+    9. 调用BeanPostProcessor的后初始化方法；
+-------------------------------------------------------------------------------
+Spring接口，所有接口实现类都必须是注册成bean才生效.@Configuration
     1. InitializingBean 
         在bean属性设置完后调用,做bean的初始化工作，对应注解:@PostConstruct,
         也可以在@Bean注解initMethod属性指定初始化方法 
@@ -43,7 +44,7 @@
             AnnotationMetadata：使用了@Import的类型的源注解 
             BeanDefinitionRegistry：提供了BeanDefinition注册和移除的相关操作 
 ---------------------------------------------------------------------            
-##spring注解 
+Spring注解
     @PropertySource("指定配置文件位置",支持数组指定多个配置文件) 
     获取指定配置文件中的属性 @Value("配置文件中的属性名") 
     @PostConstruct   方法注解
@@ -66,7 +67,7 @@
     @AutoConfigureBefore：在指定的配置类初始化前加载 
     @AutoConfigureOrder：数越小越先初始化
 ---------------------------------------------------------------------        
-##Spring类 
+Spring类
     ClassPathScanningCandidateComponentProvider 
     用于扫描包类，生成BeanDefinition，
     添加Filter过滤需要扫描的类 AnnotationTypeFilter：注解过滤器
