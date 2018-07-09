@@ -38,4 +38,14 @@ POST
 -----------------------------------------------------------------------
 路径参数：
     @PathVariable
-    
+-----------------------------------------------------------------------
+spring boot 2.0 自定义拦截器：
+拦截器：实现HandlerInterceptor接口。
+添加拦截器：使用addInterceptors
+    实现WebMvcConfigurer接口。
+
+修改返回值：
+非@ResponseBody
+    实现HandlerMethodReturnValueHandler
+@ResponseBody
+
