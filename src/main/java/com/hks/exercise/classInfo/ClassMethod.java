@@ -66,6 +66,11 @@ public class ClassMethod {
         clazz.getDeclaredAnnotations();
 
         /**
+         * 判断clazz是否是参数的父类,接口或者A和B是同一个类或者接口
+         */
+        clazz.isAssignableFrom(String.class);
+
+        /**
          * 对于类，为自己声明实现的所有接口，
          * 对于接口，为直接扩展的接口，不包括通过父类间接继承来的
          */
