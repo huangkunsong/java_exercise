@@ -1,0 +1,37 @@
+Self4j：
+
+使用 private static final  Logger LOG = LoggerFactory.getLogger(类名);
+
+直接使用log4j2
+         private static final  Logger LOG = LogManager.getLogger(类名);
+
+LoggerFactory.getLogger使用时会判断是否需要初始化,先初始化：
+
+初始化流程：
+         1、通过ClassLoader加载org/slf4j/impl/StaticLoggerBinder.class类返回Enumeration。
+                   该类是只有Self4j桥接包用的。如：Self4j-log4j2.jar
+         2、通过返回的Enumeration实例的hasMoreElements方法判断是否存在多个该类。
+         3、判断Self4j版本和桥接包版本是否兼容，不兼容给出提示,不影响使用。
+         通过StaticLoggerBinder.getLoggerFactory获取工厂使用getLogger方法获取日志对象
+
+log4j2：
+    getLogger解析：
+        1、通过getContext方法获取LoggerContext
+            1、通过Reflection.getCallerClass方法获取开始使用日志的类，在获取该类的加载器。
+            2、通过LogManager.getContext获取上下文。
+                     1：执行LogManager类static静态块，读取配置文件初始化LoggerContextFactory->Log4jContextFactory
+                     Log4jContextFactory：实例时,内部会初始化：ContextSelector->ClassLoaderContextSelector
+            3、 使用Log4jContextFactory.getContext->ClassLoaderContextSelector.getContext->new LoggerContext()创建一个上下文。
+        2、判断Context为INITIALIZED时调用start()启动初始化,并解析log4j2配置文件
+            1、解析META-INF/org/apache/logging/log4j/core/config/plugins/Log4j2Plugins.dat文件,识别出所有指定的插件类，保存在PluginRegistry
+                （如：解析xml标签的类,XmlConfigurationFactory，YamlConfigurationFactory，SpringBootConfigurationFactory）
+            2、根据Log4j2Plugins.dat解析获得的所有ConfigurationFactory,遍历ConfigurationFactory判断是否存在对应的配置文件（xml：log4j2.xml,yml：log4j2.yml...）,
+                获取配置文件,使用对应的ConfigurationFactory.getConfiguration构建Configuration实例。
+                 SpringBootConfigurationFactory.getConfiguration内会根据类来判断使用的日志框架,并加装对应的spring日志类：
+                           LogbackLoggingSystem（logback）：LogbackLoggingSystem（springboot）
+                           Log4jContextFactory（Log4j2）：Log4J2LoggingSystem（springboot）
+                           LogManager（java）：JavaLoggingSystem（springboot）
+                           最后返回log4j默认配置：DefaultConfiguration->AbstractConfiguration（后面再刷新配置）
+                 XmlConfigurationFactory：读取到log4j2.xml文件后,最后使用DocumentBuilder转成Document对象,在XmlConfiguration对文档Configuration节点属性解析
+        3、将本身Context添加到到DefaultConfiguration的listener。并添加hostName，contextName属性
+        4、启动Configuration.start()继续解析配置文件内容->AbstractConfiguration.start()，无配置文件指定时为：AbstractConfiguration.start()

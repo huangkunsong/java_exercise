@@ -1,0 +1,342 @@
+
+基本使用流程：
+
+1、inputStream读取mybatis配置文件
+
+2、new SqlSessionFactoryBuilder.build(stream)构建SqlSessionFactory
+
+3、sessionFactory.openSession()获取session
+
+4、通过session执行sql
+
+----------------------------------------------------------------
+
+构建SqlSessionFactory流程：
+
+1、SqlSessionFactoryBuilder.build内部会生成XMLConfigBuilder实例（包含Configuration属性）,调用实例的parse方法解析xml。并将解析的内容都保存在Configuration中
+
+2、解析properties标签（将数据库连接,密码等或全局属性保存到properties文件中),将读取到的属性添加到configuration.variables
+
+3、解析settings标签保存为Properties对象。所有settings设置的属性都需要在configuration类中存在set方法
+
+4、处理settings的vfsimpl属性（指定虚拟文件系统实现类）
+
+5、解析typeAliases标签（为类起别名,便于后期SQL的xml中使用）,配置package时以该包下的类名做别名。configuration初始化时已经内置了多种别名(JDBC,POOLED...)
+
+6、解析plugins标签（mybatis插件）,生成实例保存到configuration.interceptorChain
+
+7、解析objectFactory标签（每次SQL执行后,创建结果对象的实例时通过该工厂构建。）保存在configuration.objectFactory
+
+8、解析objectWrapperFactory标签（特殊VO,实现ObjectWrapper可以获得sql执行结果的原始数据MetaData,自己对MetaData处理。
+
+         需添加一个objectWrapperFactory实现类对ObjectWrapper处理）保存在configuration.objectWrapperFactory
+
+9、解析reflectorFactory标签（SQL执行结果反射使用,解析resultType标明的类型中的get、set方法、字段名。存在缓存,每个类型只会解析一次）保存在configuration.reflectorFactory
+
+10、将settings标签生成的Properties对象中的属性保存到Configuration中。
+
+11、解析environments标签（内部可配置多个environment标签,每个标签下主要配置事务管理器和datasource。使用default属性指定默认使用的environment）
+
+         内部生成Environment对象保存事务管理器和Datasource保存在configuration.environment
+
+12、解析databaseIdProvider标签（type默认配置为:DB_VENDOR,子元素配置name为各种数据库名称,value为别名。
+
+         配置SQL XML内的sql时可以指定databaseid,id相同时,databaseid与当前数据库一直的语句优先使用）
+
+13、解析typeHandlers标签（把java类型转为数据库类型,把数据库类型转为java类型。可自定义类型处理器或替代默认类型处理器）
+
+14、解析mappers标签（SQL数据xml文件）
+
+------------------------------------------------------------------
+
+解析mappers标签流程：
+
+根据子元素类型区分解析：package（配置接口地址）,mapper(配置xml文件地址)
+
+         package：循环指定包下的所有接口类,使用MapperAnnotationBuilder解析
+
+                   1、获取与当前接口类相同路径的xml文件,使用XMLMapperBuilder解析.
+
+                   2、解析类上的@CacheNamespace,与xml解析类似
+
+                   3、解析类上的@CacheNamespaceRef,与xml解析类似
+
+                   4、循环接口下的每个方法解析方法上的@Select,@Update...等生成SqlSource实例
+
+                   5、解析方法上的@Options(fetchSize,timeout)获取各个属性
+
+                   6、之后流程与XML获得SqlSource后流程一致。
+
+         mapper：直接获取指定的xml文件,使用XMLMapperBuilder解析。
+
+    判断当前namespace是否有存在对应路径的接口,
+
+         有则建：将当前解析的namespace保存到configuration.loadedResources,
+
+                将对应的接口保存到configuration.mapper
+
+
+
+----------------------------------------------------------------------
+
+XMLMapperBuilder
+
+字段说明：
+
+         parser：当前XML文件XPath解析流
+
+         builderAssistant：辅助xml解析,将namespace和路径转换.
+
+         sqlFragments：引用configuration.sqlFragments属性。保存所有XML文件中sql标签节点。key=naspacename+sqlid,value=sql节点
+
+         resource：xml文件实际路径
+
+解析流程:
+
+1、将namespace保存到builderAssistant对象里。
+
+2、解析cache-ref标签,并保存在configuration.cacheRef(保存key=当前namespace，value=关联的namespace)，
+
+                   未在全局配置里找到引用的cache时（未解析到引用的cache）,先保存到configuration.incompleteCacheRef(保存当前namesapce使用的cache实例对象)
+
+3、解析cache标签,根据标签属性生成cache对象保存在configuration.cache中
+
+4、解析parameterMap标签(很少使用)
+
+5、解析resultMap标签(很少使用)
+
+6、解析SQL标签,先解析与当前configuration对象的DatabaseId属性一致的标签,后解析databaseid为空的标签,重复会忽略.保存到configuration.sqlFragments中
+
+7、解析select|insert|update|delete先解析与当前configuration对象的DatabaseId属性一致的标签后解析databaseid为空的标签,重复会忽略.
+
+         使用statementParser对象解析。
+
+         1、先解析获取各种属性：fetchSize,timeout,parameterType...
+
+         2、使用XMLIncludeTransformer解析incloud标签,并将include标签修改成真正的节点内容。
+
+         3、解析selectKey标签（该标签增删改时可以先执行查询，由SelectKeyGenerator执行）
+
+                   1、解析成MappedStatement对象添加到configuration.mappedStatements中,key=当前SQLID+!selectKey。
+
+                   2、将解析的selectkey节点和configuration对象封装成SelectKeyGenerator对象保存在configuration.keyGenerator中。key=当前SQLID+!selectKey。
+
+                   3、当前select|insert|update|delete节点中移除selectKey
+
+         4、生成SqlSource实例,内部使用XMLScriptBuilder解析生成。
+
+                   将当前select,insert...节点内包含的所有子标签（if,when,set,where..）和文本
+
+                   解析成各种SqlNode实例。StaticTextSqlNode（纯文本，#{}）,IfSqlNode(IF标签),TextSqlNode（包含${}）
+
+                   最后封装成RawSqlSource（纯文本SQL,可包含#{}）或DynamicSqlSource（包含if或者${}）实例。
+
+                   所有XML条件语句都是使用ognl表达式,OGNL表达式执行器：ExpressionEvaluator
+
+         5、将当前解析的节点select|insert|update|delete保存到configuration.mappedStatements中。
+
+--------------------------------------------------------------------
+
+SqlSessionFactory.openSession流程：
+
+1、从configuration.environments获取DataSource和Transaction
+
+2、从configuration.newExecutor获取执行器SimpleExecutor,开启2级缓存时使用CachingExecutor封装SimpleExecutor
+
+         将执行器传给configuration.interceptors中所有的拦截器执行返回。最后将执行器封装到DefaultSqlSession内返回。
+
+--------------------------------------------------------------------
+
+使用Session查询数据流程：
+
+1、根据传入的SQLID去configuration.mappedStatements中获取对应的实例。
+
+2、参数封装成StrictMap(参数为collection,array)类型时才执行:
+
+         collection类型时：
+
+                   key=collection,
+
+                   为list时,再添加key=list
+
+         array类型时
+
+                   key=array
+
+         参数封装使XML中可以直接使用key值来获取参数
+
+3、执行mappedStatement.getBoundSql(参数)获取实际SQL(DynamicSqlSource,RawSqlSource)
+
+         DynamicSqlSource:
+
+                   1、将参数封装成DynamicContext(内部为ContextMap.MetaData),内部属性bindings保存实际参数_parameter
+
+                   2、循环SqlSource保存的所有SqlNode节点处理SQL,最后拼接出完整的SQL（带参数#{}）保存在DynamicContext.sqlBuilder,
+
+                   3、使用SqlSourceBuilder解析SQL中的参数生成SqlSource,最后使用getBoundSql封装成BoundSql
+
+                            （内部使用ParameterMappingTokenHandler处理,将SQL中的参数都替换成?,并将参数识别ParameterMappings）
+
+         RawSqlSource：
+
+                   直接封装成BoundSql
+
+4、根据MappedStatement,BoundSQL,参数获取CacheKey（用于判断是否存在缓存）
+
+5、判断二级缓存中存在该key则直接返回数据,否则调用SimpleExecutor.query继续查询。
+
+6、mappedStatement.flushCacheRequired=true时清空1级缓存
+
+7、使用configuration.newStatementHandler方法,根据MappedStatement.StatementType
+
+                   获取StatementHandler（SimpleStatementHandler，PreparedStatementHandler，CallableStatementHandler）
+
+                   并执行所有Plugin
+
+8、使用prepareStatement方法,
+
+                   开启连接,设置timeout,fetchSize,prepareStatement(sql),
+
+                   循环boundSql.parameterMappings设置参数（使用默认注册的TypeHandler处理）（内部使用PreparedStatementHandler.parameterize）
+
+9、执行PreparedStatement.execute查询
+
+10、使用DefaultResultSetHandler（默认）处理返回值
+
+         获取执行结果返回值的第一行记录封装ResultSetWrapper实例,记录（所有列名，对应的java类型，数据库类型）
+
+         根据方法返回值类型使用ObjectFactory创建实例
+
+         循环SQL返回值ResultSet中的列和实例中对应属性赋值。（使用metaObject操作）
+
+         使用reflectorFactory解析resultType标明的类,objectFactory生成实例，并使用typeHandlers对返回结果做java类型转换。最后使用反射赋值。
+
+----------------------------------------------------------------------------------------
+
+Mybatis和Spring结合：
+
+Mybatis自动配置类：MybatisAutoConfiguration
+
+Mybatis配置属性类：MybatisProperties
+
+
+
+MybatisAutoConfiguration：
+
+         1、生成SqlSessionFactory
+
+         2、生成SqlSessionTemplate
+
+         3、不存在MapperFactoryBean时,自动扫描所有@Mapper接口的类生成bean
+
+通过@MapperScan扫描DAO接口生成bean
+
+         1、注解上通过@Import(MapperScannerRegistrar.class)导入类,该类实现ImportBeanDefinitionRegistrar动态注册dao接口
+
+         2、使用Mybatis自定义类ClassPathMapperScanner扫描@MapperScan注解basePackages属性标注的dao包生成bean
+
+         3、ClassPathMapperScanner生成的definition设置beanclass为:MapperFactoryBean
+
+         4、MapperFactoryBean类实现FactoryBean接口,通过getObject返回实例注册为bean
+
+                   getObject内通过SqlSession.getMapper最后使用MapperProxy代理Dao接口
+
+                   执行时通过代理的接口名和方法名到Configuration.mappedStatements获取Statements,最后通过sqlSessionTemaplate执行
+
+
+
+Mybatis日志打印是通过动态代理拦截方法打印。
+
+ConnectionLogger,  打印连接和输出SQL语句
+
+PreparedStatementLogger,     打印参数
+
+ResultSetLogger,     打印Total
+
+StatementLogger,
+
+BaseJdbcLogger
+
+
+
+-----------------------------------------------------------------
+
+Mybatis的settings标签配置
+
+cacheEnabled：开启2级缓存
+
+-----------------------------------------------------------------
+
+Mybatis的插件
+
+-----------------------------------------------------------------
+
+Mybatis的缓存(存在2级缓存)
+
+1级缓存：sqlSession级别缓存,一直开启,同一个sqlsession查询的sqlid+参数一致时会使用缓存。
+
+2级缓存：全局缓存,默认开启。2级缓存在Sqlsession关闭或提交后生效。
+
+         使用步骤：
+
+         1：在全局配置文件的settings中使用cacheEnabled：开启2级缓存
+
+         2：POJO需要实现Serializable接口。
+
+         3：需要使用缓存的xml文件中使用cache标签配置缓存
+
+                   cache标签说明：
+
+                            eviction：缓存回收策略（LRU：回收最长时间不被使用的，默认。）
+
+                            flushInterval：刷新时间。默认不刷新，调用语句时刷新
+
+                            size：最大缓存的数量,太大会导致内存溢出
+
+                            readOnly：true/false。true：给所有调用者返回相同的实例。false：通过序列化返回对象的拷贝,慢一些（默认）。
+
+         4：在需要使用缓存的sql使用useCache=true标明。（flushCache为指定执行完是否清空1级缓存,增删改默认为true,查询为false）
+
+         在sql的xml文件中使用cache-ref可以引用别的namesapce配置的缓存实例
+
+
+
+
+
+-----------------------------------------------
+
+字段说明
+
+
+
+XMLConfigBuilder.parseConfiguration解析XML配置(使用XPath解析)生成Configuration
+
+
+
+Configuration   保持所有xml解析的配置
+
+         TypeAliasRegistry  保存所有类的别名和定义了mybatis中预定义的字符实际对应的类（long,string,....）,Configuration初始化时也会写入部分类型定义（jdbc,jndi）还有配置文件中的typeAliases
+
+         TypeHandlerRegistry       保存了所有jdbcType|javaType...类型对应的处理
+
+         Environment    保存了数据源和事务管理器
+
+         mappedStatements  保存了所有SQL XML中每个ID解析出来的MappedStatement
+
+
+
+XMLMapperBuilder 解析映射SQL XML文件
+
+
+
+SqlSourceBuilder      根据XML构建SQL,最后统一生成MappedStatement保存在configuration
+
+         buildParameterMapping 解析XML参数#{}，生产参数映射map,（0映射第一个参数，直接使用字段名等）保存配置
+
+         parse
+
+DefaultParameterHandler       执行SQL时处理参数
+         parameterMapping  key生成
+
+
+
