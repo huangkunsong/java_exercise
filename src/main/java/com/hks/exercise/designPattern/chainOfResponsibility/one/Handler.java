@@ -1,4 +1,4 @@
-package com.hks.exercise.designPattern.chainOfResponsibility;
+package com.hks.exercise.designPattern.chainOfResponsibility.one;
 
 public abstract class Handler {
 
@@ -9,6 +9,7 @@ public abstract class Handler {
     }
 
     /**
+     * 模板方法模式
      * 根据链的顺序遍历,直到有符合的就执行处理返回
      * 可变形为：
      *      根据链的顺序遍历,每个链中的对象进行处理,直到有处理失败的就中断执行
@@ -16,19 +17,17 @@ public abstract class Handler {
      * @param request
      * @return
      */
-    public final Response process(Request request) {
-        Response response = null;
-        if (this.needEcho(request)) {
-            response = this.echo(request);
+    public final void process(Request request, Response response) {
+        if (this.needEcho(request, response)) {
+            this.echo(request, response);
         } else if (null != this.nextHandler) {
-            response = this.nextHandler.process(request);
+            this.nextHandler.process(request, response);
         } else {
-            response = new Response("not matched, price：" + request.getPrice());
+            response.setMsg("not matched, price：" + request.getPrice());
         }
-        return response;
     }
 
-    public abstract boolean needEcho(Request request);
+    public abstract boolean needEcho(Request request, Response response);
 
-    public abstract Response echo(Request request);
+    public abstract void echo(Request request, Response response);
 }

@@ -1,4 +1,4 @@
-package com.hks.exercise.designPattern.chainOfResponsibility;
+package com.hks.exercise.designPattern.chainOfResponsibility.two;
 
 public class Request {
 

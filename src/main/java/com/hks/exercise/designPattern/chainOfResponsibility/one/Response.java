@@ -1,4 +1,4 @@
-package com.hks.exercise.designPattern.chainOfResponsibility;
+package com.hks.exercise.designPattern.chainOfResponsibility.one;
 
 public class Response {
 
@@ -10,6 +10,9 @@ public class Response {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public Response() {
     }
 
     public Response(String msg) {
