@@ -1,7 +1,5 @@
 package com.hks.exercise;
 
-import java.util.Random;
-
 /**
  * 获取区间随机数公式
  * (数据类型)(最小值+Math.random()*(最大值-最小值+1))
@@ -10,10 +8,13 @@ import java.util.Random;
  */
 public class random {
     public static void main(String[] args) {
-        Random random = new Random();
+        /*Random random = new Random();
         for (int i = 1; i <= 10000; i++) {
             int value = (int)(100 + Math.random() * (500 - 100 + 1));
             System.out.println(value);
-        }
+        }*/
+
+        long num = 2147483647 * 10 ;
+        System.out.println(num);
     }
 }

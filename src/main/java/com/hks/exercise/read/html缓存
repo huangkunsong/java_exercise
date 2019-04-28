@@ -1,0 +1,50 @@
+HTML缓存
+
+强缓存：
+    浏览器直接从自己的缓存中读取资源,不会发送请求到服务器。
+协商缓存：
+    强缓存没有命中时,会发一个请求到服务器，通过服务器端依据资源的另外一些http header验证这个资源是否命中协商缓存
+    如果协商缓存命中,服务器会将这个请求返回,但是不会返回这个资源的数据,
+    而是告诉客户端可以直接从缓存中加载这个资源,于是浏览器就又会从自己的缓存中去加载这个资源;
+共同点：
+    如果命中,都是从客户端缓存中加载资源,而不是从服务器加载资源数据;
+区别：
+    强缓存不发请求到服务器,协商缓存会发请求到服务器。
+
+当协商缓存也没有命中的时候，浏览器直接从服务器加载资源数据。
+
+强缓存：(命中时,http status=200,size显示from disk cache | from memory cache)
+    强缓存是利用Expires或者Cache-Control这两个http response header实现的
+    Expires：
+        HTTP 1.0提出的一个表示资源过期时间的header,它描述的是一个绝对时间,由服务器返回,用GMT格式的字符串表示.
+        缺点：修改客户端时间会影响结果,如：将客户端时间修改成Expires时间之后会导致缓存失效。
+    Cache-Control：
+        这是一个相对时间,在配置缓存的时候,以秒为单位,用数值表示,如：Cache-Control:max-age=315360000
+        还可以为 Cache-Control 指定 public 或 private 标记
+        private：表示该资源仅仅属于发出请求的最终用户，这将禁止中间服务器（如代理服务器）缓存此类资源。
+        public：则允许所有服务器缓存该资源。
+        Cache-Control 默认设为 public 是合理的。
+    Expires和Cache-Control同时存在时,Cache-Control优先级高于Expires。
+
+协商缓存：(命中时,http status=304并且会显示一个Not Modified的字符串)
+    协商缓存是利用的是【Last-Modified, If-Modified-Since】和【ETag, If-None-Match】这两对Header来管理的。
+    Last-Modified,If-Modified-Since：
+        Last-Modified：表示这个资源在服务器上的最后修改时间。
+        If-Modified-Since：
+            浏览器再次跟服务器请求这个资源时,在request的header上加上If-Modified-Since的header,
+            这个header的值就是上一次请求时返回的Last-Modified的值
+        服务器再次收到资源请求时,根据浏览器传过来If-Modified-Since和资源在服务器上的最后修改时间判断资源是否有变化,
+        如果没有变化则返回304 Not Modified,但是不会返回资源内容;如果有变化,就正常返回资源内容。
+        缺点：有时候服务端资源更新了最后更新时间没有更新导致无法获取到最新的资源。
+    ETag、If-None-Match：
+        ETag：
+            根据当前请求的资源生成的一个唯一标识,这个唯一标识是一个字符串,只要资源有变化这个串就不同。
+        If-None-Match：
+            浏览器再次跟服务器请求这个资源时,会带上这个header,值为上一次的ETag
+        服务器再次收到资源请求时,根据浏览器传过来If-None-Match和然后再根据资源生成一个新的ETag,
+        如果这两个值相同就说明资源没有变化,否则就是有变化;
+        如果没有变化则返回304 Not Modified,但是不会返回资源内容;如果有变化,就正常返回资源内容.
+ETag相对于Last-Modified也有其优势，可以更加准确的判断文件内容是否被修改.
+分布式系统里多台机器间文件的Last-Modified必须保持一致,以免负载均衡到不同机器导致比对失败;
+分布式系统尽量关闭掉ETag(每台机器生成的ETag都会不一样
+
