@@ -13,16 +13,20 @@ package com.hks.exercise.classInfo;
  *      根据这个机制，父加载器加载过的类不能被子加载器加载第二次。
  * 三种默认加载器：
  *  Bootstrap类加载器(使用C/C++编写,封装到JVM内核中) 获取不到的
- *      负责加载 JRE/lib/rt.jar,如String,Integer,Map
+ *      负责加载 JRE/lib/rt.jar、resources.jar、charsets.jar ,如String,Integer,Map
  *      最顶层的类加载器,没有父类加载器。
+ *      查看加载的路径：
+ *      System.out.println(System.getProperty("sun.boot.class.path"));
  *  Extension(ExtClassLoader)类加载器
  *      负责加载 JRE/lib/ext
+ *      查看加载类文件的路径：
+ *      System.out.println(System.getProperty("java.ext.dirs"))
  *  System(AppClassLoader)
  *      classpath指定的所有jar或目录
  *
- *  自定义类加载器：
- *      继承ClassLoader实现和加载一个类的执行顺序：
- *          loadClass->findClass->defineClass
+ *  ExtClassLoader，AppClassLoder继承URLClassLoader，而URLClassLoader继承ClassLoader
+ *  BoopStrap ClassLoder由C/C++编写,不是java类。
+ *
  *  自定义类加载器的父类都是AppClassLoader
  *
  *  Java文件要编译成class字节码文件后才可以被JVM加载。

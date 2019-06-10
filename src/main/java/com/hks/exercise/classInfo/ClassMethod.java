@@ -3,8 +3,10 @@ package com.hks.exercise.classInfo;
 import java.lang.reflect.*;
 
 public class ClassMethod {
-    public static void main(String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    public static void main(
+        String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Class clazz = String.class;
+
         /**
          * 调用类的无参构造
          */
@@ -30,10 +32,6 @@ public class ClassMethod {
          */
         System.out.println(clazz.isInstance("123"));
 
-        /**
-         * 类是否基本类型
-         */
-        clazz.isPrimitive();
         /**
          * 返回指定类型参数的构造函数(不包含private的)
          */
@@ -87,10 +85,38 @@ public class ClassMethod {
         clazz.getDeclaredFields();
 
         /**
-         * 获取指定字段
+         * public（包括继承的）
+         */
+        clazz.getDeclaredMethod("");
+
+        /**
+         * 返回所有的public方法,包括继承的
+         */
+        clazz.getMethods();
+
+        /**
+         * 返回所有的public,private的方法（不包括继承的）
+         */
+        clazz.getDeclaredMethods();
+
+        /**
+         * 获取所有字段,不包括继承的
+         */
+        clazz.getDeclaredField("a");
+
+
+        /**
+         * ==========================================================
+         *                  Field
+         * ==========================================================
+         */
+
+        /**
+         * 获取指定字段不包括private
          */
         Field field = clazz.getField("a");
-        clazz.getDeclaredField("a");
+
+
 
         /**
          * 为指定实例设置该字段值
@@ -116,13 +142,19 @@ public class ClassMethod {
          */
         field.setAccessible(true);
 
+
+
+        /**
+         * ==========================================================
+         *                  Method
+         * ==========================================================
+         */
+
         /**
          * 返回该类指定方法名和参数的方法
+         * public,private（不包括继承的）
          */
         Method method = clazz.getMethod("", String.class);
-        clazz.getDeclaredMethod("");
-        clazz.getMethods();
-        clazz.getDeclaredMethods();
 
         /**
          * 执行方法
@@ -131,11 +163,13 @@ public class ClassMethod {
 
         /**
          * 返回方法的返回值类型
+         * 泛型返回Object
          */
         Class c = method.getReturnType();
 
         /**
-         * 返回方法返回值类型的Type对象
+         * 返回方法实际返回的类型的Type对象
+         * 泛型返回表明的泛型，如：T
          */
         Type type = method.getGenericReturnType();
 
@@ -151,7 +185,7 @@ public class ClassMethod {
         Class[] paramsClass = method.getParameterTypes();
 
         /**
-         * 返回参数的Type对象
+         * 返回参数实际类型的Type对象
          */
         method.getGenericParameterTypes();
 
@@ -185,6 +219,33 @@ public class ClassMethod {
          */
         method.getParameterAnnotations();
 
+        /**
+         * 返回方法修饰符
+         */
+        method.getModifiers();
+
+        /**
+         * 方法名称
+         */
+        method.getName();
+
+        /**
+         * 是否桥接方法
+         * 子类实现父类的接口的泛型方法时就是桥接方法
+         * 桥接方法都是JVM自动生成的
+         * 泛型类在编译成CLASS文件时都会变成实际类型
+         */
+        method.isBridge();
+
+        /**
+         * 返回方法描述符、名称和参数 泛型返回T
+         */
+        method.toString();
+
+        /**
+         * 返回方法描述符、名称和参数 泛型返回实际类型
+         */
+        method.toGenericString();
     }
 
 }

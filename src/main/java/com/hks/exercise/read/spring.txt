@@ -6,111 +6,109 @@
 
 Spring装配bean的过程：
 
-         1、使用默认构造器方法或指定构造参数进行Bean实例化；
+ 1、使用默认构造器方法或指定构造参数进行Bean实例化；
 
-         2、根据property标签的配置调用Bean实例中的相关set方法完成属性的赋值。
+ 2、根据property标签的配置调用Bean实例中的相关set方法完成属性的赋值。
 
-         3、如果Bean实现了BeanNameAware接口，调用setBeanName设置Bean的ID或者Name；
+ 3、如果Bean实现了BeanNameAware接口，调用setBeanName设置Bean的ID或者Name；
 
-         4、如果Bean实现了BeanFactoryAware接口，调用setBeanFactory设置BeanFactory；
+ 4、如果Bean实现了BeanFactoryAware接口，调用setBeanFactory设置BeanFactory；
 
-         5、如果Bean实现了ApplicationContextAware，调用setApplicationContext设置ApplicationContext；
+ 5、如果Bean实现了ApplicationContextAware，调用setApplicationContext设置ApplicationContext；
 
-         6、如果有BeanPostProcessor与当前bean关联，则与之关联的对象的postProcessor-BeforeInitialzation()方法将被调用；
+ 6、如果有BeanPostProcessor与当前bean关联，则与之关联的对象的postProcessor-BeforeInitialzation()方法将被调用；
 
-         7、调用InitializingBean的afterPropertiesSet()方法；
+ 7、调用InitializingBean的afterPropertiesSet()方法；
 
-         8、调用定制init-method方法；
+ 8、调用定制init-method方法；
 
-         9、调用BeanPostProcessor的后初始化方法；
+ 9、调用BeanPostProcessor的后初始化方法；
 
 
 
 Spring接口，所有接口实现类都必须是注册成bean才生效.@Configuration
 
-         InitializingBean
+ InitializingBean
 
-                   在bean属性设置完后调用,做bean的初始化工作，对应注解:@PostConstruct, 也可以在@Bean注解initMethod属性指定初始化方法
+           在bean属性设置完后调用,做bean的初始化工作，对应注解:@PostConstruct, 也可以在@Bean注解initMethod属性指定初始化方法
 
-         DisposableBean
+ DisposableBean
 
-                   在bean生命周期结束之前调用,对应注解@PreDestroy，也可以在@Bean注解destroyMethod属性指定初始化方法
+           在bean生命周期结束之前调用,对应注解@PreDestroy，也可以在@Bean注解destroyMethod属性指定初始化方法
 
-         ApplicationContextAware
+ ApplicationContextAware
 
-                   bean注册时注入获取ApplicationContext
+           bean注册时注入获取ApplicationContext
 
-         EnvironmentAware   bean注册时注入获取Environment,
+ EnvironmentAware   bean注册时注入获取Environment,
 
-                   用于获取各种属性(系统属性,环境变量,自定义的(yml|properties文件))或者设置Profile
+           用于获取各种属性(系统属性,环境变量,自定义的(yml|properties文件))或者设置Profile
 
-         BeanNameAware
+ BeanNameAware
 
-                   bean注册时获取该bean的名
+           bean注册时获取该bean的名
 
-         BeanFactoryAware
+ BeanFactoryAware
 
-                   获取加载该bean的BeanFactory
+           获取加载该bean的BeanFactory
 
-         BeanClassLoaderAware
+ BeanClassLoaderAware
 
-                   获取Bean自身的类加载器
+           获取Bean自身的类加载器
 
-         FactoryBean
+ FactoryBean
 
-                   可以控制spring生成指定类型bean的结果
+           可以控制spring生成指定类型bean的结果
 
-         InstantiationAwareBeanPostProcessor
+ InstantiationAwareBeanPostProcessor
 
-                   每个bean实例化阶段触发，postProcessBeforeInstantiation，postProcessAfterInstantiation
+           每个bean实例化阶段触发，postProcessBeforeInstantiation，postProcessAfterInstantiation
 
-         BeanPostProcessor：
+ BeanPostProcessor：
 
-                   每一个bean初始化前触发postProcessBeforeInitialization，初始化完触发postProcessAfterInitialization
+           每一个bean初始化前触发postProcessBeforeInitialization，初始化完触发postProcessAfterInitialization
 
-         BeanFactoryPostProcessor
+ BeanFactoryPostProcessor
 
-                   beanfactory加载后执行，只执行一次,可以修改bean属性,scope等。
+           beanfactory加载后执行，只执行一次,可以修改bean属性,scope等。
 
-         ResourceLoaderAware：
+ ResourceLoaderAware：
 
-                   获取资源加载器,可以用于加载指定资源
+           获取资源加载器,可以用于加载指定资源
 
-         ImportBeanDefinitionRegistrar
+ ImportBeanDefinitionRegistrar
 
-                   用于额外注册bean，该接口实现类通过使用@Import导入使用
+           用于额外注册bean，该接口实现类通过使用@Import导入使用
 
-                   registerDefaultConfiguration（AnnotationMetadata，BeanDefinitionRegistry）
+           registerDefaultConfiguration（AnnotationMetadata，BeanDefinitionRegistry）
 
-                            AnnotationMetadata：使用了@Import的类型的源注解
+                    AnnotationMetadata：使用了@Import的类型的源注解
 
-                            BeanDefinitionRegistry：提供了BeanDefinition注册和移除的相关操作
+                    BeanDefinitionRegistry：提供了BeanDefinition注册和移除的相关操作
 
-         BeanDefinitionRegistryPostProcessor
+ BeanDefinitionRegistryPostProcessor
 
-                   spring注册的bean都会生成BeanDefinition,该接口会在所有bean生成后触发可以对所有的bean的BeanDefinition额外处理或添加BeanDefinition
-
-
+           spring注册的bean都会生成BeanDefinition,该接口会在所有bean生成后触发可以对所有的bean的BeanDefinition额外处理或添加BeanDefinition
 
 
 
 spring注解
 
-         @PropertySource("指定配置文件位置",支持数组指定多个配置文件)    获取指定配置文件中的属性
+ @PropertySource("指定配置文件位置",支持数组指定多个配置文件)    获取指定配置文件中的属性
 
-                   @Value(#{"配置文件中的属性名"})
+           @Value(#{"配置文件中的属性名"})
 
-         @PostConstruct
+ @PostConstruct
 
-         @PreDestroy：方法上使用,指明bean销毁前调用该方法
+ @PreDestroy：方法上使用,指明bean销毁前调用该方法
 
-         @NestedConfigurationProperty：属性上使用,表明属性是对象,不是基本类型属性绑定
+ @NestedConfigurationProperty：属性上使用,表明属性是对象,不是基本类型属性绑定
 
 
 Spring 类
 
-                   ClassPathScanningCandidateComponentProvider 用于扫描包类，生成BeanDefinition
+   ClassPathScanningCandidateComponentProvider 用于扫描包类，生成BeanDefinition
 
-                            添加Filter过滤需要扫描的类
+    添加Filter过滤需要扫描的类
 
-                                     AnnotationTypeFilter：注解过滤器
+     AnnotationTypeFilter：注解过滤器

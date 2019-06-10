@@ -16,7 +16,7 @@ public class MapMethod {
 
         map.getOrDefault("a", "cc");
         /**
-         * 如果存在key=c,则进行运算a=key,b=value
+         * 如果存在key=a,则进行运算a=key,b=value
          * 返回key的新值
          */
         map.compute("a", (a, b) -> "d");
