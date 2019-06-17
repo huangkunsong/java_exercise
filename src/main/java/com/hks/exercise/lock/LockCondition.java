@@ -27,8 +27,6 @@ public class LockCondition {
         Consumer2 consumer = new Consumer2(buffer);
         for (int i = 0; i < 3; i++) {
             new Thread(producer, "producer-" + i).start();
-        }
-        for (int i = 0; i < 3; i++) {
             new Thread(consumer, "consumer-" + i).start();
         }
     }
@@ -55,7 +53,6 @@ class Buffer2 {
         try {
             while (storage.size() == maxSize) {//如果队列满了
                 System.out.print(Thread.currentThread().getName() + ": wait \n");
-                ;
                 notFull.await();//阻塞生产线程
             }
             storage.add(new Date());
@@ -75,7 +72,6 @@ class Buffer2 {
         try {
             while (storage.size() == 0) {//如果队列满了
                 System.out.print(Thread.currentThread().getName() + ": wait \n");
-                ;
                 notEmpty.await();//阻塞消费线程
             }
             Date d = ((LinkedList<Date>) storage).poll();
@@ -84,7 +80,6 @@ class Buffer2 {
             notFull.signalAll();//唤醒生产线程
 
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             lock.unlock();

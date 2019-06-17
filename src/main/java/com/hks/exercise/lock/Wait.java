@@ -7,20 +7,19 @@ import java.util.List;
 public class Wait {
 
     public static void main(String[] args) {
-        Buffer buffer=new Buffer(10);
-        Producer producer=new Producer(buffer);
-        Consumer consumer=new Consumer(buffer);
+        Buffer buffer = new Buffer(10);
+        Producer producer = new Producer(buffer);
+        Consumer consumer = new Consumer(buffer);
         //创建线程执行生产和消费
-        for(int i=0;i<3;i++){
-            new Thread(producer,"producer-"+i).start();
-        }
-        for(int i=0;i<3;i++){
-            new Thread(consumer,"consumer-"+i).start();
+        for (int i = 0; i < 3; i++) {
+            new Thread(producer, "producer-" + i).start();
+            new Thread(consumer, "consumer-" + i).start();
         }
     }
 }
 
 class Buffer {
+
     private int maxSize;
     private List<Date> storage;
 
@@ -51,7 +50,7 @@ class Buffer {
                 System.out.println(Thread.currentThread().getName() + "队列空了");
                 wait();
             }
-            Date d = ((LinkedList<Date>)storage).poll();
+            Date d = ((LinkedList<Date>) storage).poll();
             System.out.println(Thread.currentThread().getName() +
                 ",task：" + storage.size());
             Thread.sleep(1000);
@@ -61,28 +60,36 @@ class Buffer {
         }
     }
 }
+
 //生产者
-class Producer implements Runnable{
+class Producer implements Runnable {
+
     private Buffer buffer;
-    Producer(Buffer b){
-        buffer=b;
+
+    Producer(Buffer b) {
+        buffer = b;
     }
+
     @Override
     public void run() {
-        while(true){
+        while (true) {
             buffer.put();
         }
     }
 }
+
 //消费者
-class Consumer implements Runnable{
+class Consumer implements Runnable {
+
     private Buffer buffer;
-    Consumer(Buffer b){
-        buffer=b;
+
+    Consumer(Buffer b) {
+        buffer = b;
     }
+
     @Override
     public void run() {
-        while(true){
+        while (true) {
             buffer.take();
         }
     }

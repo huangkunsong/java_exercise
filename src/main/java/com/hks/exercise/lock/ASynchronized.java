@@ -6,7 +6,7 @@ package com.hks.exercise.lock;
  * 1：实例作用域
  *  同一个实例,只要一个线程访问了其中的一个synchronized方法,
  *  其它线程不能同时访问这个对象中任何一个synchronized方法,synchronized代码块。
- * 2：类范围
+ * 2：类作用域
  *  防止多个线程同时访问这个类中的synchronized static 方法。
  *  它可以对类的所有对象实例起作用。
  * synchronized关键字是不能继承的,

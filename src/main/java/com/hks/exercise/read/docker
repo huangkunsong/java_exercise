@@ -1,0 +1,109 @@
+systemctl start docker       启动docker服务
+systemctl restart docker     重启docker服务
+systemctl daemon-reload      重新加载docker daemon
+docker version               查询docker版本
+docker search xxx            到Register中查询xxx关键字的镜像
+docker pull 镜像名            下载镜像
+docker ps                    列出正在运行的容器
+    -a包含已停止的
+docker images                列出已下载的镜像
+docker rmi  镜像名            删除镜像
+docker rmi -f $(docker iamges)  删除所有镜像
+docker rmi $(docker images -f "dangling=true" -q)   删掉换掉的镜像(<none>)
+
+
+
+docker run 镜像名             生成镜像实例并在容器中运行,镜像不存在是会到Register中获取
+    -d  后端运行，返回容器id
+    --name  指定容器名称
+    -p 指定容器端口号
+        hostpost:containerPort
+    --netword 指定网络模式
+    -v 指定挂载路径
+       [host-dir]:[container-dir]
+    -t  让docker分配一个伪终端并绑定到容器的标准输入上,
+    -i  则让容器的标准输入保持打开.
+    --volumes-from  共享挂载点使用
+docker inspect 容器id或名称         获取容器信息
+docker stop 容器id或名称            停止容器
+docker start 容器id或名称           根据容器id,启动已停止的容器
+docker restart 容器id或名称         重启容器
+docker remove 容器id或名称          删除容器
+docker rm $(sudo docker ps -a -q) 删除所有已停止的容器
+docker logs 容器id或名称            后台运行时,可以使用该命令查看日志
+docker top 容器id或名称             查看容器内运行的进程
+
+
+进入docker容器
+1：docker attach 容器id或名称          进入容器,不建议使用。多个窗口进入同一个容器会同步显示,一个堵塞,其他也无法操作
+
+2：docker inspect --format "{{.State.Pid}}" 容器id或名称   获取容器中第一个进程的PID
+   nsenter --target "容器第一个进程的pid" --mount --uts --ipc --net --pid
+
+3：docker exec -it 容器id或名称 /bin/bash
+
+容器内获取容器id：
+head -1 /proc/self/cgroup|cut -d/ -f3
+
+将本地文件copy到容器内
+docker cp 本地文件路径 容器名:容器内目标路径
+将容器内文件copy到宿主主机
+docker cp 容器名:容器文件路径 宿主文件路径
+
+
+
+根据运行中的容器更新或创建新的镜像：
+docker commit -m='更新内容' -a='作者' 被更新的容器  新的容器名
+
+
+制作镜像
+1：新建一个Dockerfile文件,用一组命令告诉docker做什么,所有命令都是大写
+  FROM <镜像>： 指定基础镜像,类似extends。必须放在其他指令之前
+               FROM指令之后所有的所有指令都依赖该镜像
+  RUN  <command>:  RUN指令告诉docker做什么,在shell终端中运行
+                   输入shell命令
+  ADD <src> <dest> ： 复制文件,从src复制文件到容器内dest中
+      src是Dockerfile所在目录的相对路径,可以是一个URL,也可以是一个压缩包
+      src是一个url时,必须在Dockerfile的子路径
+        以/结尾视为文件夹,会把所有文件下载到dest
+        不以/结尾视为文件
+      src如果是一个压缩包,则docker会自动解压
+  ARG <key>=<value>: 设置构建参数
+  CMD ：容器启动命令,用于为执行容器提供默认值。
+        每个Dockerfile只有一个CMD命令,多个CMD命令只有最后一条执行。
+        启动时指定了运行的命令,会覆盖CMD
+        CMD command param1 param2
+  COPY：和ADD类型,不支持URL和压缩包
+  ENTRYPOINT：入口点,和CMD功能一样。
+  ENV：设置环境变量，可以设置多个
+      ENV A=B
+      ENV A B
+  EXPOSE 声明容器运行时提供服务的端口
+  LABEL：为镜像添加源数据
+  MAINTAINER：指定维护者的信息
+  USER：设置用户,设置启动镜像时的用户,
+        写在该命令后的RUN,CMD及ENTRYPOINT都是使用该用户执行命令
+  VOLUME：设置挂载点,指定容器目录映射到宿主主机中,持久化存储的功能
+          无法指定具体的宿主主机目录
+  WORKDIR：指定工作目录 写在该指令后面的RUN,CMD及ENTRYPOINT指令,
+           都将该目录作为工作目录,并执行相应命令
+
+Demo：
+FROM java
+
+MAINTAINER rookie
+
+ADD service-producer-0.0.1-SNAPSHOT.jar /app.jar
+
+EXPOSE 1000
+
+VOLUME ./logs:/logs
+
+ENTRYPOINT docker_container_id=$(head -1 /proc/self/cgroup|cut -d/ -f3); java -jar /app.jar
+
+
+
+生成镜像：.表示当前目录,指向Dockerfile文件的目录
+  docker build -t 镜像名:版本（不加版本,默认为laster） .
+
+

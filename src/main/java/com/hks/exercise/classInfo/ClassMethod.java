@@ -3,9 +3,15 @@ package com.hks.exercise.classInfo;
 import java.lang.reflect.*;
 
 public class ClassMethod {
-    public static void main(
-        String[] args) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+
+    public static void main(String[] args)
+        throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         Class clazz = String.class;
+
+        /**
+         * 获取包名
+         */
+        clazz.getPackage();
 
         /**
          * 调用类的无参构造
@@ -75,17 +81,7 @@ public class ClassMethod {
         clazz.getInterfaces();
 
         /**
-         * 获取所有字段,不包含private
-         */
-        clazz.getFields();
-
-        /**
-         * 获取所有字段,包含private,不包含继承的
-         */
-        clazz.getDeclaredFields();
-
-        /**
-         * public（包括继承的）
+         * public,private（不包括继承的）
          */
         clazz.getDeclaredMethod("");
 
@@ -104,7 +100,15 @@ public class ClassMethod {
          */
         clazz.getDeclaredField("a");
 
+        /**
+         * 获取所有字段,不包含private
+         */
+        clazz.getFields();
 
+        /**
+         * 获取所有字段,包含private,不包含继承的
+         */
+        clazz.getDeclaredFields();
         /**
          * ==========================================================
          *                  Field
@@ -115,8 +119,6 @@ public class ClassMethod {
          * 获取指定字段不包括private
          */
         Field field = clazz.getField("a");
-
-
 
         /**
          * 为指定实例设置该字段值
@@ -142,8 +144,6 @@ public class ClassMethod {
          */
         field.setAccessible(true);
 
-
-
         /**
          * ==========================================================
          *                  Method
@@ -154,6 +154,8 @@ public class ClassMethod {
          * 返回该类指定方法名和参数的方法
          * public,private（不包括继承的）
          */
+        clazz.getDeclaredMethods();
+
         Method method = clazz.getMethod("", String.class);
 
         /**
@@ -172,7 +174,6 @@ public class ClassMethod {
          * 泛型返回表明的泛型，如：T
          */
         Type type = method.getGenericReturnType();
-
 
         /**
          * 返回方法参数总数

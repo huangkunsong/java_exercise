@@ -83,8 +83,6 @@ public class ForkJoin {
     public static void main(String[] args) throws ExecutionException, InterruptedException {
         ForkJoinPool forkJoinPool = new ForkJoinPool();
         CountTask countTask = new CountTask(1, 10000);
-        countTask.fork();
-        System.out.println(countTask.join());
 
         Future<Integer> future = forkJoinPool.submit(countTask);
         /**

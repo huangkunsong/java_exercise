@@ -97,6 +97,7 @@ public class Lock {
         System.out.println("Read start");
         Thread.sleep(1000);
         System.out.println("Read end");
+        readLock.unlock();
     }
 
     public void writeLock() {
