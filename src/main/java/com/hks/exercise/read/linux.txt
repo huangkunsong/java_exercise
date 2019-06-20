@@ -83,18 +83,23 @@
     rmdir 文件夹   ->  删除文件夹
         -p   删除后为空文件夹也一并删除
     rm 文件名  ->  删除文件
+      -rf   删除非空文件夹
     cp 文件名 目的地  ->  拷贝文件
     mv 文件名 目的地  ->  移动文件,移动到本路径可以修改文件名
     cat 文件名 ->  读取并输出文件
     wc -l 文件名   ->  统计文件行数
     touch 创建文件
-    rm 文件夹名 -rf   删除非空文件夹
-    netstat -ntlp    查看端口占用
 
 
-iptables
+netstat -ntlp    查看端口占用
+
+
+iptables   配置文件：/etc/sysconfig/iptables
 iptables -L -n  查看所有开放端口映射
 iptables -A INPUT -p tcp -m tcp --dport 6066 -j ACCEPT    添加开放端口
 iptables -A OUTPUT -p tcp --dport 6066 -j DROP            删除开放端口
 iptables -A INPUT -s 192.168.0.1 -p tcp --dport 3306 -j ACCEPT   运行固定ip访问固定端口
 service iptables save 或者 iptables-save>/etc/sysconfig/iptables 保存配置
+service iptables status    #查看iptables状态
+service iptables restart   #iptables服务重启
+service iptables stop

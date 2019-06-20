@@ -32,7 +32,7 @@ docker remove 容器id或名称          删除容器
 docker rm $(sudo docker ps -a -q) 删除所有已停止的容器
 docker logs 容器id或名称            后台运行时,可以使用该命令查看日志
 docker top 容器id或名称             查看容器内运行的进程
-
+docker tag 容器id 新tag            push镜像时将tag
 
 进入docker容器
 1：docker attach 容器id或名称          进入容器,不建议使用。多个窗口进入同一个容器会同步显示,一个堵塞,其他也无法操作
