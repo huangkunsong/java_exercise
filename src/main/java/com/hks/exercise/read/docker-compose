@@ -1,0 +1,12 @@
+所有命令要于docker-compose.yml文件同目录执行，[service]指定docker-compose.yml文件中services中的
+命令docker-compose 参数：
+build：构建或重新构建服务。
+kill [service]：停止服务,不在参数停止所有
+logs：输出日志
+ps：列出所有的容器
+rm [service]：删除指定服务
+up：构建,创建,重新启动,启动服务的相关容器。所有服务都会启动,除非已经运行
+  -d 后台运行
+start 启动服务
+stop  停止服务
+scale 服务名=2  指定服务运行的容器个数

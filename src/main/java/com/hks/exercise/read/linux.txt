@@ -42,7 +42,6 @@
    password：修改密码
    ps：用于显示当前进程的状态。
    grep：找文件里符合条件的字符串。
-   vim 打开文件编辑
    |：将两个命令隔开，管道符左边命令的输出就会作为管道符右边命令的输入。
    cat：文本输出命令，通常是用于观看某个文件的内容
       一次显示整个文件： cat filename
@@ -79,6 +78,13 @@
         :w  ->  保存文件不退出
         :w  ->  文件名 另存为
         :q! ->  不保存强制退出文件
+        编辑器中跳到文件的第一行：
+        　　 输入 :0 或者 :1   回车
+        　　 键盘按下 小写 gg
+        编辑器跳到文件最后一行：
+        　　 输入 :$   回车
+        　　 键盘按下大写 G
+        　　 键盘按 shift + g    (其实和第二种方法一样)
     mkdir 文件夹   ->  创建文件夹
     rmdir 文件夹   ->  删除文件夹
         -p   删除后为空文件夹也一并删除
@@ -103,3 +109,6 @@ service iptables save 或者 iptables-save>/etc/sysconfig/iptables 保存配置
 service iptables status    #查看iptables状态
 service iptables restart   #iptables服务重启
 service iptables stop
+
+HOST文件：
+/etc/hosts
