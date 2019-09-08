@@ -11,6 +11,9 @@ docker rmi  镜像名            删除镜像
 docker rmi -f $(docker iamges)  删除所有镜像
 docker rmi $(docker images -f "dangling=true" -q)   删掉换掉的镜像(<none>)
 
+docker login --username=xx  登录指定register,后续push
+
+
 
 docker build 镜像名      构建镜像
 docker run 镜像名             生成镜像实例并在容器中运行,镜像不存在是会到Register中获取

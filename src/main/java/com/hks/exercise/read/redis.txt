@@ -7,12 +7,46 @@ redis缺点：
 
 
 redis-server /configPath
-redis-server stop 停止
-redis-server start 启动
-redis-server restart 重启
+ stop 停止
+ start 启动
+ restart 重启
+ --test-memory 1024  用来测试系统是否有足够内容分配中给redis
 
-redis-cli -h host -p port -a password
-redis-cli [-h -p] -shutdown [save|nosave] 停止redis,生成持久化文件
+redis-cli
+redis-cli
+  -h host
+  -p port
+  -a password
+  -r 重复次数
+  -i 间隔时间
+  -shutdown [save|nosave] 停止redis,生成持久化文件
+  -x 获取标准输入读取数据作为最后一个参数
+  -c 链接Redis-Cluster
+  --scan/--pattern  相当于scan
+  --slave 把当前客户端模拟成Redis从节点,用来获取当前Redis的更新操作
+  --rdb 请求当前Redis生成RDB持久文件,保存在本地。可以使用来做定期持久化
+  --pipe
+  --bigkeys 使用scan对Redis key进行扫描,获取内存占用比较大的键值
+  --eval 运行指定Lua脚本
+  --latency 用来检测网络延迟
+  --latency-history 间隔15S输出一条记录
+  --latency-dist 用图表形式显示
+  --stat  实时获取Redis的重要统计信息,如：key数量,使用内存,客户端数量,阻塞数量,链接数量等
+  --no-raw 要求返回结果为原始格式(默认)
+  --raw 返回格式化的结果
+
+
+redis-benchmark 性能测试
+  -c 客户端数量
+  -n 执行命令数量
+  -q 结果只显示执行时间
+  -r 控制命令生成keys数量
+  -t 指定测试命令, -t get,set
+  -p 每个请求pipeline的数据量
+  -k 指定客户端是否使用keepalive,1为使用(默认)
+  --csv 结果按照csv格式输出
+
+
 
 redis key 命令规范：
 业务场景名:对象名:id[属性]，适当减少key长度,避免内存浪费,加快获取
@@ -252,4 +286,70 @@ zunionstore 并集操作,使用同上
 
 使用场景：
     展示获取赞数最多的十个用户
+
+=====================================================================================
+慢查询：
+  命令耗时：发送命令->命令排队->执行命令->返回结果
+  慢查询只统计执行命令时间
+  slowlog-log-slower-than：设置记录阈值,单位微秒.默认：0.001s
+                           设置为：0,会记录所有命令,小于0,所有都不记录
+  slowlog-max-len：设置最多记录条数,默认128
+slowlog get [n]  获取慢查询日志
+  1：日志标识
+  2：时间戳
+  3：耗时
+  4：执行的命令和参数
+  5：执行的客户端ip和端口号
+  6：客户端名称
+slowlog len 获取慢查询日志大小
+slowlog reset 清空慢日志
+=====================================================================================
+pipeline 将要执行的多条命令一次性发送执行
+原生批量命令和Pipeline对比：
+  原生批量命令          pipeline
+  原子性的,            非原子性
+  单命令               多命令
+  服务端支持            服务端和客户端共同实现
+
+=====================================================================================
+事务
+multi  开启事务
+exec   提交事务
+watch key [key] 开启事务前,指定监视key,未发生变化事务才执行成功
+
+=====================================================================================
+Lua
+eval scriptcontent keynumber ...key    执行Lua
+evalsha sha1  执行指定sha1内容
+
+script load 'content'  加载Lua内容,得到Sha1
+script exists sha1 判断是否存在
+script flush     清空加载的lua脚本
+script kill      杀掉执行的Lua脚本,Lua正在执行写入时不生效。
+
+
+
+
+在Lua中执行redis命令
+redis.call("set","a", "aaaa");
+redis.call("get","a");
+redis.call出错会中断执行
+redis.pcall出错会继续执行。
+
+Redis中Lua脚本好处：
+原子性,减少网络开销
+
+
+
+=====================================================================================
+配置管理
+config set [key] [value] 设置配置项
+config get [key] 获取配置项
+config rewrite 持久化配置项
+
+
+=====================================================================================
+客户端命令：
+client [set/get]name 设置获取客户端名称
+client list 列出所有客户端
 

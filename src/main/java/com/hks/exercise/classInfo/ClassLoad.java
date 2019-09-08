@@ -80,6 +80,7 @@ public class ClassLoad {
              * 得到的class是已经初始化完成的,已经执行的类的静态块
              */
             Class.forName("com.hks.exercise.classInfo.ClassLoad");
+
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
