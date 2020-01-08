@@ -1,0 +1,170 @@
+启动mongo数据库shell：
+  mongod --dbpath  d:\mongoDB  --service  --logpath  d:\mongoDB\mongo.log
+
+启动后连接shell：
+  mongo
+默认端口号：27017
+默认会启用一个基本的HTTP服务器,端口：28017    http://localhost:28017
+
+shell:
+  help
+  show dbs 显示所有数据库
+  use dbName  切换数据库
+  db  当前数据库
+  db.dropDatabase()  删除当前数据库
+
+CQUD
+
+db.[collectionName].
+  insert(record)  //不超过4MB
+  find(condition),         //最多获取4MB数据,shell中每次只获取20条数据
+  findOne(condition)    toArray()  查询的数据格式化显示
+  update(condition,updateRecoed,isUpsert,isMulti)
+  condition:条件，
+  updateRecoed: 更新后的记录,
+  isUpsert : condition存在就修改,不存在就新增updateRecoed。
+  isMulti : 匹配修改多条记录,默认false，只更新第一条数据
+  save(record) : 修改或新增记录,record._id存在就调用upsert,不存在就调用insert
+  remove(condition)
+  drop()       清空集合
+  findAndModify({                                             //更新并返回文档
+    query : {},                   //condition
+    sort : {},
+    remove : boolean,
+    update : {},                 //update,remove 2选一
+    new : boolean, //true:返回更新前的文档,false更新后的文档。默认：false
+    fields : {}, //返回的字段
+    upsert : boolean
+  })
+
+$xxx：查询时在内层,更新时在外层使用
+
+修改器：
+  $inc 递增, field:递增的字段,incNumber：设置递增量。
+           db.users.update({},{$inc : {field : incNumber}});
+  $set 新增或修改指定字段值,直接使用db.users.update({},{a:123})会将整个文档替换成{a:123}
+           db.users.update({},{$set : {b : 321}});
+           db.users.update({},{$set : {"c.a" : 312}}); //修改内嵌文档
+  $unset   删除字段
+           db.users.update({},{$unset : {c : 1}}) //删除字段c
+  $ne   不等于,查询字段a不等于123123的文档,字段a为数组时判断不包含
+           db.users.find({ a : {$ne : 121233}})
+
+数组修改器：
+  $push  向数组尾部添加元素,数组不存在就新建数组
+           db.users.update({},{$push : {c : {a : 123}}});  向数组c添加{a:123}
+           db.users.update({c : {$ne : "as123d"}},{$push : {c : "qqd"}}); 数组c不包含"as123d"就添加"qqd"。使用$addToSet更合适
+  $pushAll   批量添加
+  $pop         删除数组中一端的一项元素
+           db.users.update({},{$pop : {c : 1}});  1：从尾部删除一项, -1 : 从头部删除一项
+  $addToSet  数组中存在就不添加,不存在就添加
+           db.users.update({},{$addToSet : {c : "asd"}});
+           db.users.update({},{$addToSet: {c : {$each : ["asd","123",123]}}});  与$each配套使用,实现批量添加
+
+数组更新
+  db.users.update({},{$set:{"c.0" : "1"}})   更新数组c下标为0的项为"1"
+  db.users.update({c: "1"},{$set : {"c.$" : "aa"}})  更新数组c中"1"的项为"aa",$为定位操作符表示匹配的项。
+  db.users.update({"c.a": 123},{$inc: {"c.$.a": 10000}}); //[{a: 123},{a:321}] 更新数组c中a属性为123的项,a属性添加10000
+
+查询：find,findOne    第一个参数为查询的条件(支持正则表达式),第二个参数为返回的查询字段,需要返回的字段值：1,否则：0
+                    find时,shell并不会立即查询数据库,而是等真正开始使用数据时才去查询
+  $lt
+  $lte
+  $gt
+  $gte
+    db.users.find({b : {$gte : 3, $lte : 100}})  //查询3<= b <= 100 的记录
+  $ne  不等于
+    db.users.find({b : {$ne : 3}});
+  $in
+    db.users.find({b : {$in : [3,100]}});
+  $nin   不包含
+    db.users.find({b : {$nin : [3,100]}});
+  $or
+    db.users.find({$or : [{b : 4},{a : "12311"}]})
+  $mod 取模
+    db.users.find({b : {$mod : [2,0]}});  将字段b%2 = 0 的 文档匹配
+  $not 取相反结果,常与正则表达式联合使用
+    db.users.find({b : {$not : {$mod : [2,0]}}});
+  $exists  键存在
+    db.users.find({dd: null})   会匹配dd为null的文档，也会匹配不存在dd字段的文档
+    db.users.find(dd : {$in : [null], $exists : true}) 只匹配存在dd且值为null的建
+  $where 可以执行任意查询
+    db.users.find($where : function(){
+    this 当前文档,返回true结果集包含该文档
+  })
+
+数组查询：
+  db.users.find({b : "aa"});  数组b只要包含aa就匹配
+  db.users.find({b : ["aa","bb"]});  数组b要精确匹配["aa","bb"]。顺序需要一致
+  $all 包含所有项才匹配,与顺序无关
+    db.users.find({b :{$all :["aa","bb"]}})  数组b要包含aa,bb
+  指定位置匹配
+    db.users.find({"b.2":"bb"});  匹配数组b第3项为bb的文档
+  $size：长度匹配
+    db.users.find({b : {$size  :2}});   匹配数组b长度为2的文档
+  $slice：返回指定位置的数组
+    $slice ： 10 返回数组前10项
+    $slice : -10 返回数组后10项
+    $slice : [20,30]  返回第21到30项
+    db.users.find({},{b:{$slice : -1}});   返回所有文档,且每个文档的b数组只包含最后一项
+内嵌文档
+  {a : {a:123}}  查询 {"a.a":123}
+  $elemMatch    不懂。。
+
+游标操作
+  find查询返回的是一个游标,shell中无变量接收时,则直接输出游标结果
+  var a = db.users.find();
+  a.hasNext()  判断游标是否有下一项
+  a.next() 获取下一项
+  a.forEach()  游标实现了迭代接口
+  limit(n) 返回指定数量的结果集
+  skip(n)  忽略前n个数量的文档
+  sort({}) 对指定键进行排序,1为升序，-1为降序
+
+索引
+  创建的索引{a:1,b:1,c:1}  对{a:1},{a:x,b:x},{a:x,b,:x,c:x}查询都有效,索引包含N个键,对前几个键的查询都有效
+  索引对查询的键顺序没有要求：{a:1,b:1}索引对{b:x,a:x}查询也起作用
+  索引会对集合的增删改造成性能影响,这些操作都需要更新索引。每个集合最多64个索引
+  排序操作也会使用索引
+  db.[collection]
+  ensureIndex({},{})   第一个参数：对指定键创建索引,1：升序, -1倒序（可以对内嵌的文档创建索引,key=a.b形式）
+                      一个键时,索引升序和倒序都不影响,  2个键以上的场景会有影响
+                      第二个参数：指定索引的细节
+
+  name：索引名,会自动名字也可以手动指定
+  unique ： true  唯一索引
+  dropDups：true   当为已有数据的集合创建唯一索引,且集合的字段有重复的,
+                  可以使用该项,保留第一个文档删除重复的文档
+  background : true   异步创建索引
+  dropIndexes() 删除文档
+  hint({})  指定索引查询
+  getIndexes()  获取当前集合所有索引
+
+性能分析
+  db.[collection].find().explain()  返回查询的统计信息
+  {
+    cursor ： 使用的索引
+    nscanned : 扫描的文档数量
+    n : 返回的文档数量
+    millns ：查询的执行时间
+  }
+
+聚合
+  count({})/find({}).count()   查询总数
+  distinct("fieldName",{})   只能对一个字段进行去重
+  group({
+   key : ""   进行分组的键
+   initial : any  $reduce函数初始值
+   $reduce :　function(currentDoc,preDoc){ 每一组分组的成员都会调用,最后preDoc作为该组分组结果
+   }
+   condition : {}  过滤条件,将集合数据过滤后在进行分组
+   finalize ： function(doc){                 分组结束后,对每一个分组结果进行修剪在返回数据
+   }
+   $key : function(x){}  通过函数来确认分组的键(不使用key),每一个文档都会调用返回的字符串作为分组的键
+  })
+
+固定集合
+  db.createCollection(collectionName,{
+   capped : true,
+   size : 100     集合大小，字节单位
+  })

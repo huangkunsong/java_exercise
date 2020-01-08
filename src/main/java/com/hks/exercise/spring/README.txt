@@ -1,3 +1,9 @@
+SpringFactoriesLoader  加载spring.factories文件
+
+YamlPropertySourceLoader
+
+PropertiesLoaderUtils
+
 Spring装配bean的过程：
     1. 使用默认构造器方法或指定构造参数进行Bean实例化；  
     2. 根据property标签的配置调用Bean实例中的相关set方法完成属性的赋值。 
