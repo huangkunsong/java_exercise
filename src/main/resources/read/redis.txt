@@ -292,7 +292,7 @@ Bitmaps(二进制类型,实际为String类型.类似：以位为单位的数组,
 setbit key offset value
 getbit key offset    获取值,不存在返回0
 bitcount key start end 获取指定范围内值为1的总数
-bitop op storekey key[key...]  复合操作,可以对多个biamps做
+bitop op storekey key[key...]  复合操作,可以对多个bitmaps做
                                交集(and),并集(or),非(not),xor(异或)操作保存到StoreKey
   bitop and user:20160403:and20160404 user:20160403 user:20160404  获取03和04 2天都登录的用户
   bitop or user:20160403:and20160404 user:20160403 user:20160404  获取03和04 任意一天登录的用户
