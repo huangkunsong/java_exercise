@@ -35,7 +35,8 @@ public class AtomicAndLongAdder {
                 public Long call() throws Exception {
                     for (int j = 0; j < 100000; j++) {
                         atomicLong.incrementAndGet();
-                        // longAdder.increment();
+                        longAdder.increment();
+                        longAdder.sum();
                     }
                     return 1L;
                 }

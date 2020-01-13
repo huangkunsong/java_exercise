@@ -1,8 +1,14 @@
-package com.hks.exercise.Thread;
+package com.hks.exercise.thread;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import java.util.concurrent.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 线程池优点：
